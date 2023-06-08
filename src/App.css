@@ -1,0 +1,9 @@
+a {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+table th,
+table td {
+  border: 1px solid #999;
+}
