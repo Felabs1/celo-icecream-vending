@@ -16,3 +16,6 @@ https://celo-icecream-vending.vercel.app/
 
 
 
+![Screenshot (12)](https://github.com/Felabs1/celo-icecream-vending/assets/92982964/08c464e0-e9c0-44ab-af9c-4dd8fe535d93)
+![Screenshot (14)](https://github.com/Felabs1/celo-icecream-vending/assets/92982964/59cf9905-25c3-4d08-a311-c257c7b1cb35)
+![Screenshot (15)](https://github.com/Felabs1/celo-icecream-vending/assets/92982964/b430dc65-3e81-442a-9f86-690207b4255d)
