@@ -8,7 +8,7 @@ dotenv.config();
 export default defineConfig({
   plugins: [react()],
   define: {
-    global: {},
+    global: "window",
   },
   optimizeDeps: {
     esbuildOptions: {
