@@ -3,9 +3,9 @@ import { newKitFromWeb3 } from "@celo/contractkit";
 import { Navigate } from "react-router-dom";
 import { abi } from "./abi";
 
-export const web3 = new Web3("HTTP://127.0.0.1:7545");
+export const web3 = new Web3(window.celo);
 export const kit = newKitFromWeb3(web3);
-const contract33 = "0xE21C5595182B6652E26A3aE46Ef75419c6b6b621";
+const contract33 = "0x30151187f132A9E9F4cdc9CFF3cf6466aCEBDFe2";
 export const contract = new kit.web3.eth.Contract(abi, contract33);
 
 export const connectCeloWallet = async () => {

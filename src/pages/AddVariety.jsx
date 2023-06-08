@@ -89,7 +89,7 @@ const AddVariety = () => {
     const addIcecream = async () => {
       await contract.methods
         .addStock(enteredFlavour, enteredVolume, enteredPricePerLitre)
-        .send({ from: sender, gasLimit: "1000000" })
+        .send({ from: window.celo.selectedAddress, gasLimit: "1000000" })
         .then((data) => {
           getAddedDetails();
         });
