@@ -48,6 +48,10 @@ const AddVariety = () => {
         .send({ from: window.celo.selectedAddress, gasLimit: "1000000" })
         .then((data) => {
           getAddedDetails();
+        }).catch((e) => {
+          if (e.message.includes("only owner")) {
+            alert("only the owner can add stock");
+          }
         });
     }
     const res = await toast.promise(contractInteraction(), {
@@ -92,6 +96,10 @@ const AddVariety = () => {
         .send({ from: window.celo.selectedAddress, gasLimit: "1000000" })
         .then((data) => {
           getAddedDetails();
+        }).catch((e) => {
+          if (e.message.includes("only owner")) {
+            alert("only the owner can add stock");
+          }
         });
     };
 
@@ -122,6 +130,10 @@ const AddVariety = () => {
         .then((data) => {
           getAddedDetails();
           volumeToUpdate.current.value = "";
+        }).catch((e) => {
+          if (e.message.includes("only owner")) {
+            alert("only the owner can add stock");
+          }
         });
     }
 
@@ -152,6 +164,10 @@ const AddVariety = () => {
         .then((data) => {
           getAddedDetails();
           priceToUpdate.current.value = "";
+        }).catch((e) => {
+          if (e.message.includes("only owner")) {
+            alert("only the owner can add stock");
+          }
         });
     }
 
