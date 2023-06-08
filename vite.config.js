@@ -1,22 +1,17 @@
 import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import dotenv from "dotenv";
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+
 dotenv.config();
-// https://vitejs.dev/config/
+
 export default defineConfig({
   plugins: [react()],
-  define: {
-    global: "window",
-  },
   optimizeDeps: {
     esbuildOptions: {
-      // Node.js global to browser globalThis
       define: {
-        global: "globalThis",
+        global: "globalThis", // Node.js global to browser globalThis
       },
-      // Enable esbuild polyfill plugins
       plugins: [
         NodeGlobalsPolyfillPlugin({
           buffer: true,
