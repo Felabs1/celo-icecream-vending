@@ -21,8 +21,8 @@ contract Icecream{
         owner = msg.sender;
     }
 
-    uint public saleCount;
-    uint public stockCount;
+    uint internal saleCount;
+    uint internal stockCount;
     mapping(uint => IcecreamToSell) public iceCreamsToSell;
     mapping(uint => Sale) public sales;
 
@@ -37,11 +37,15 @@ contract Icecream{
     }
 
     function addStock(string memory _flavor, uint _volume, uint _price)public onlyOwner{
+        require(_volume > 0, "Volume must be greater than zero");
+        require(_price > 0, "Price must be greater than zero");
         stockCount++;
         iceCreamsToSell[stockCount] = IcecreamToSell(_flavor, _volume, _price, false);
     }
 
     function refillIceCream(uint _id, uint _volume)public onlyOwner{
+        require(_id <= stockCount, "Invalid ice cream ID");
+        require(_volume > 0, "Volume must be greater than zero");
         iceCreamsToSell[_id].volume += _volume;
     }
 
@@ -49,15 +53,20 @@ contract Icecream{
         iceCreamsToSell[_id].price = _price;
     }
 
-    function sellIcecream(uint _id, uint _quantity, string memory _customerName, uint _price, uint _total)public{
-        require(iceCreamsToSell[_id].volume >= _quantity, "stock too low");
-        saleCount++;
-        string memory flavor = iceCreamsToSell[_id].flavor;
-        uint volume = iceCreamsToSell[_id].volume;
-        uint newVolume = volume - _quantity;
-        iceCreamsToSell[_id].volume = newVolume;
-        sales[saleCount] = Sale(_customerName, flavor, _quantity, _price, _total, block.timestamp);
-    }
+  function sellIcecream(uint _id, uint _quantity, string memory _customerName, uint _price, uint _total) public {
+    require(iceCreamsToSell[_id].volume >= _quantity, "stock too low");
+    
+    uint volume = iceCreamsToSell[_id].volume;
+    require(volume >= _quantity, "insufficient stock");
+
+    uint newVolume = volume - _quantity;
+    iceCreamsToSell[_id].volume = newVolume;
+
+    saleCount++;
+    string memory flavor = iceCreamsToSell[_id].flavor;
+    sales[saleCount] = Sale(_customerName, flavor, _quantity, _price, _total, block.timestamp);
+}
+
 
     function deleteIcecream(uint _id)public onlyOwner{
         iceCreamsToSell[_id].disabled = true;
