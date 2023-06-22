@@ -22,10 +22,11 @@ const SideNav = () => {
         <span style={{ fontWeight: "600" }}>MANAGER</span>
         <br />
         <br />
-        {navbar.map(({ navName, navIcon, navLink }) => {
+        {navbar.map(({ navName, navIcon, navLink }, index) => {
           return (
             <Link
               to={navLink}
+              key={index}
               className="w3-bar-item w3-padding-large w3-round-large w3-btn"
             >
               {navIcon}&nbsp;&nbsp;&nbsp;{navName}

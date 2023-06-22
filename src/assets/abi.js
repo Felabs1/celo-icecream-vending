@@ -44,6 +44,21 @@ export const abi = [
   {
     constant: true,
     inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    constant: true,
+    inputs: [],
     name: "saleCount",
     outputs: [
       {

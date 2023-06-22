@@ -139,16 +139,19 @@ const DashboardCards = () => {
     <div className="w3-row-padding">
       {dashBoardCards &&
         dashBoardCards.map(
-          ({
-            backgroundColor,
-            bigNumber,
-            smallNumber,
-            cardLabel,
-            dashCardIcon,
-            color,
-          }) => {
+          (
+            {
+              backgroundColor,
+              bigNumber,
+              smallNumber,
+              cardLabel,
+              dashCardIcon,
+              color,
+            },
+            index
+          ) => {
             return (
-              <div className="w3-col l3 w3-text-white">
+              <div className="w3-col l3 w3-text-white" key={index}>
                 <div
                   className="w3-round-xlarge"
                   style={{ backgroundColor: backgroundColor, height: "300px" }}

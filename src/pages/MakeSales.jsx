@@ -8,10 +8,12 @@ import SideNav from "../components/SideNav";
 import Modal from "../components/Modal";
 
 const MakeSales = () => {
-  const [contractData, setContractData] = useState(null);
+  const [contractData, setContractData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [total, setTotal] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
   const customerName = useRef();
   const quantity = useRef();
   const handleCalculation = (e) => {
@@ -39,6 +41,13 @@ const MakeSales = () => {
   useEffect(() => {
     getAddedDetails();
   }, []);
+
+  useEffect(() => {
+    const filtered = contractData.filter(({ flavor }) =>
+      flavor.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredData(filtered);
+  }, [contractData, searchTerm]);
 
   const sellIceCream = async (e) => {
     const enteredName = customerName.current.value;
@@ -72,19 +81,37 @@ const MakeSales = () => {
     const res = await toast.promise(makeSales(), {
       position: toast.POSITION.TOP_CENTER,
 
-      pending: "selling...",
-      success: "sold successfully",
-      error: "some error occured",
+      pending: {
+        render() {
+          return "selling...";
+        },
+      },
+      success: {
+        render() {
+          quantity.current.value = "";
+          customerName.current.value = "";
+          return "sold";
+        },
+      },
+      error: {
+        render({ data }) {
+          const error = data.message;
+          if (error.includes("denied")) {
+            return "You denied transaction";
+          } else if (error.includes("payload")) {
+            return "there is an error with payload";
+          } else if (error.includes("stock")) {
+            return "This flavor is out of stock";
+          } else {
+            return "some error occured";
+          }
+        },
+      },
     });
   };
 
   const handleSearchProduct = (e) => {
-    const text = e.target.value;
-    let filteredData = contractData.filter((data) => {
-      return data.flavor.toLowerCase().includes(text);
-    });
-    console.log(filteredData);
-    setContractData(filteredData);
+    setSearchTerm(e.target.value);
   };
   return (
     <>
@@ -180,36 +207,38 @@ const MakeSales = () => {
               </tr>
             </thead>
             <tbody>
-              {contractData &&
-                contractData.map(({ disabled, flavor, price, volume, id }) => {
-                  return (
-                    <tr>
-                      <td>{flavor}</td>
-                      <td>{price}</td>
-                      <td>{volume}</td>
-                      <td>
-                        <button
-                          className="w3-btn w3-round"
-                          style={{ backgroundColor: "#171d69" }}
-                          onClick={() => {
-                            setModalOpen(true);
-                            setCurrentId((previousState) => {
-                              return {
-                                ...previousState,
-                                id,
-                                flavor,
-                                price,
-                                volume,
-                              };
-                            });
-                          }}
-                        >
-                          sell
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+              {filteredData &&
+                filteredData.map(
+                  ({ disabled, flavor, price, volume, id }, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{flavor}</td>
+                        <td>{price}</td>
+                        <td>{volume}</td>
+                        <td>
+                          <button
+                            className="w3-btn w3-round"
+                            style={{ backgroundColor: "#171d69" }}
+                            onClick={() => {
+                              setModalOpen(true);
+                              setCurrentId((previousState) => {
+                                return {
+                                  ...previousState,
+                                  id,
+                                  flavor,
+                                  price,
+                                  volume,
+                                };
+                              });
+                            }}
+                          >
+                            sell
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  }
+                )}
             </tbody>
           </table>
         </div>

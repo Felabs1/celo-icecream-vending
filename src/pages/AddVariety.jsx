@@ -3,19 +3,38 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Main from "../components/Main";
 import Navbar from "../components/Navbar";
-import { web3, contract, kit } from "../assets/celoFrontEnd";
+import { web3, contract, kit, owner } from "../assets/celoFrontEnd";
 import SideNav from "../components/SideNav";
 import Modal from "../components/Modal";
 
 const AddVariety = () => {
-  const [contractData, setContractData] = useState(null);
+  const [contractData, setContractData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentId, setCurrentId] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
+  const [accountOwner, setAccountOwner] = useState("");
   const volume = useRef();
   const flavour = useRef();
   const pricePerLitre = useRef();
   const volumeToUpdate = useRef();
   const priceToUpdate = useRef();
+  console.log(accountOwner);
+
+  useEffect(() => {
+    async function getContractOwner() {
+      const owner = await contract.methods.owner().call();
+      setAccountOwner(owner);
+    }
+    getContractOwner();
+  });
+
+  useEffect(() => {
+    const filtered = contractData.filter(({ flavor }) =>
+      flavor.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredData(filtered);
+  }, [contractData, searchTerm]);
 
   async function getAddedDetails() {
     const count = await contract.methods.stockCount().call();
@@ -48,27 +67,40 @@ const AddVariety = () => {
         .send({ from: window.celo.selectedAddress, gasLimit: "1000000" })
         .then((data) => {
           getAddedDetails();
-        }).catch((e) => {
-          if (e.message.includes("only owner")) {
-            alert("only the owner can add stock");
-          }
         });
     }
     const res = await toast.promise(contractInteraction(), {
       position: toast.POSITION.TOP_CENTER,
 
-      pending: "Deleting",
-      success: "Deleted",
-      error: "Failed to delete",
+      pending: {
+        render() {
+          return "Deleting...";
+        },
+      },
+      success: {
+        render() {
+          return "Deleted Successfully";
+        },
+      },
+      error: {
+        render({ data }) {
+          const error = data.message;
+          if (error.includes("denied")) {
+            return "You denied deletion";
+          } else if (error.includes("payload")) {
+            return "there is an error with payload";
+          } else if (error.includes("only owner")) {
+            return "only the contract owner can perform this";
+          } else {
+            return "unknown internal error occured";
+          }
+        },
+      },
     });
   };
   const handleSearch = (e) => {
     const text = e.target.value;
-    let filteredData = contractData.filter((data) => {
-      return data.flavor.toLowerCase().includes(text);
-    });
-    console.log(filteredData);
-    setContractData(filteredData);
+    setSearchTerm(text);
   };
   const handleAddIcecream = async (e) => {
     e.preventDefault();
@@ -96,19 +128,39 @@ const AddVariety = () => {
         .send({ from: window.celo.selectedAddress, gasLimit: "1000000" })
         .then((data) => {
           getAddedDetails();
-        }).catch((e) => {
-          if (e.message.includes("only owner")) {
-            alert("only the owner can add stock");
-          }
         });
     };
 
     const res = await toast.promise(addIcecream(), {
       position: toast.POSITION.TOP_CENTER,
 
-      pending: "Adding",
-      success: "Added",
-      error: "some error occured",
+      pending: {
+        render() {
+          return "Adding";
+        },
+      },
+      success: {
+        render() {
+          volume.current.value = "";
+          flavour.current.value = "";
+          pricePerLitre.current.value = "";
+          return "Added";
+        },
+      },
+      error: {
+        render({ data }) {
+          const error = data.message;
+          if (error.includes("denied")) {
+            return "You denied transaction";
+          } else if (error.includes("payload")) {
+            return "there is an error with payload";
+          } else if (error.includes("only owner")) {
+            return "only the contract owner can perform this";
+          } else {
+            return "some error occured";
+          }
+        },
+      },
     });
   };
 
@@ -130,19 +182,36 @@ const AddVariety = () => {
         .then((data) => {
           getAddedDetails();
           volumeToUpdate.current.value = "";
-        }).catch((e) => {
-          if (e.message.includes("only owner")) {
-            alert("only the owner can add stock");
-          }
         });
     }
 
     const res = await toast.promise(contractInteraction(), {
       position: toast.POSITION.TOP_CENTER,
 
-      pending: "saving...",
-      success: "Successfully saved",
-      error: "some error occured",
+      pending: {
+        render() {
+          return "modifying changes...";
+        },
+      },
+      success: {
+        render() {
+          return "Volume Updated successfully";
+        },
+      },
+      error: {
+        render({ data }) {
+          const error = data.message;
+          if (error.includes("denied")) {
+            return "You denied transaction";
+          } else if (error.includes("payload")) {
+            return "there is an error with payload";
+          } else if (error.includes("only owner")) {
+            return "only the contract owner can perform this";
+          } else {
+            return "unknown internal error occured";
+          }
+        },
+      },
     });
   };
 
@@ -163,20 +232,37 @@ const AddVariety = () => {
         })
         .then((data) => {
           getAddedDetails();
-          priceToUpdate.current.value = "";
-        }).catch((e) => {
-          if (e.message.includes("only owner")) {
-            alert("only the owner can add stock");
-          }
         });
     }
 
     const res = await toast.promise(contractInteraction(), {
       position: toast.POSITION.TOP_CENTER,
 
-      pending: "saving...",
-      success: "price updated successfully",
-      error: "some error occured",
+      pending: {
+        render() {
+          return "modifying changes...";
+        },
+      },
+      success: {
+        render() {
+          priceToUpdate.current.value = "";
+          return "Price Updated successfully";
+        },
+      },
+      error: {
+        render({ data }) {
+          const error = data.message;
+          if (error.includes("denied")) {
+            return "You denied transaction";
+          } else if (error.includes("payload")) {
+            return "there is an error with payload";
+          } else if (error.includes("only owner")) {
+            return "only the contract owner can perform this";
+          } else {
+            return "unknown internal error occured";
+          }
+        },
+      },
     });
   };
 
@@ -185,6 +271,8 @@ const AddVariety = () => {
       <SideNav />
       <Main>
         <Navbar pageName="Add Varieties" onSearchProduct={handleSearch} />
+        <ToastContainer />
+
         {modalOpen && (
           <Modal className="w3-text-white">
             <button
@@ -239,62 +327,65 @@ const AddVariety = () => {
         )}
         <br />
         <br />
-        <form
-          className="w3-padding w3-text-white w3-round-large w3-auto"
-          style={{
-            backgroundImage: "linear-gradient(to left, #2e50a5, #0f2274 )",
-            width: "30rem",
-          }}
-        >
-          <h4>Add Variety</h4>
-          <label>Flavour</label>
-          <input
+        {window.celo.selectedAddress.toLowerCase() ==
+          accountOwner.toLowerCase() && (
+          <form
+            className="w3-padding w3-text-white w3-round-large w3-auto"
             style={{
-              backgroundColor: "inherit",
-              outline: "none",
-              border: "1px solid #999",
-              color: "#ccc",
-              marginBottom: "5px",
+              backgroundImage: "linear-gradient(to left, #2e50a5, #0f2274 )",
+              width: "30rem",
             }}
-            ref={flavour}
-            className="w3-input w3-round"
-          />
-          <label>Volume (Litres)</label>
-          <input
-            ref={volume}
-            style={{
-              backgroundColor: "inherit",
-              outline: "none",
-              border: "1px solid #999",
-              color: "#ccc",
-              marginBottom: "5px",
-            }}
-            className="w3-input w3-round"
-          />
-          <label>Price /litre</label>
-          <input
-            ref={pricePerLitre}
-            style={{
-              backgroundColor: "inherit",
-              outline: "none",
-              border: "1px solid #999",
-              color: "#ccc",
-              marginBottom: "5px",
-            }}
-            className="w3-input w3-round"
-          />
-          <br />
-          <button
-            className="w3-button w3-round w3-right"
-            style={{ backgroundColor: "#0f2274" }}
-            onClick={handleAddIcecream}
           >
-            Save
-          </button>
-          <ToastContainer />
-          <br />
-          <br />
-        </form>
+            <h4>Add Variety</h4>
+            <label>Flavour</label>
+            <input
+              style={{
+                backgroundColor: "inherit",
+                outline: "none",
+                border: "1px solid #999",
+                color: "#ccc",
+                marginBottom: "5px",
+              }}
+              ref={flavour}
+              className="w3-input w3-round"
+            />
+            <label>Volume (Litres)</label>
+            <input
+              ref={volume}
+              style={{
+                backgroundColor: "inherit",
+                outline: "none",
+                border: "1px solid #999",
+                color: "#ccc",
+                marginBottom: "5px",
+              }}
+              className="w3-input w3-round"
+            />
+            <label>Price /litre</label>
+            <input
+              ref={pricePerLitre}
+              style={{
+                backgroundColor: "inherit",
+                outline: "none",
+                border: "1px solid #999",
+                color: "#ccc",
+                marginBottom: "5px",
+              }}
+              className="w3-input w3-round"
+            />
+            <br />
+            <button
+              className="w3-button w3-round w3-right"
+              style={{ backgroundColor: "#0f2274" }}
+              onClick={handleAddIcecream}
+            >
+              Save
+            </button>
+            <br />
+            <br />
+          </form>
+        )}
+
         <br />
         <br />
         <div className="w3-padding">
@@ -305,41 +396,48 @@ const AddVariety = () => {
                 <th>Flavour</th>
                 <th>Price</th>
                 <th>Volume</th>
-                <th>Action</th>
+                {window.celo.selectedAddress.toLowerCase() ==
+                  accountOwner.toLowerCase() && <th>Action</th>}
               </tr>
             </thead>
             <tbody>
-              {contractData &&
-                contractData.map(({ disabled, flavor, price, volume, id }) => {
-                  return (
-                    <tr>
-                      <td>{flavor}</td>
-                      <td>{price}</td>
-                      <td>{volume}</td>
-                      <td>
-                        <button
-                          className="w3-btn w3-round"
-                          style={{ backgroundColor: "#171d69" }}
-                          onClick={() => {
-                            setModalOpen(true);
-                            setCurrentId(id);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        &nbsp;
-                        <button
-                          className="w3-btn w3-round"
-                          style={{ backgroundColor: "#936b0e" }}
-                          value={id}
-                          onClick={handleDelete}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+              {filteredData &&
+                filteredData.map(
+                  ({ disabled, flavor, price, volume, id }, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{flavor}</td>
+                        <td>{price}</td>
+                        <td>{volume}</td>
+
+                        {window.celo.selectedAddress.toLowerCase() ==
+                          accountOwner.toLowerCase() && (
+                          <td>
+                            <button
+                              className="w3-btn w3-round"
+                              style={{ backgroundColor: "#171d69" }}
+                              onClick={() => {
+                                setModalOpen(true);
+                                setCurrentId(id);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            &nbsp;
+                            <button
+                              className="w3-btn w3-round"
+                              style={{ backgroundColor: "#936b0e" }}
+                              value={id}
+                              onClick={handleDelete}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  }
+                )}
             </tbody>
           </table>
         </div>

@@ -13,7 +13,7 @@ export const navbar = [
     navIcon: <FaChartArea />,
   },
   {
-    navName: "Add Variety",
+    navName: "Varieties",
     navLink: "/add-variety",
     navIcon: <FaPlus />,
   },
